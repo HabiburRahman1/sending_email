@@ -1,10 +1,13 @@
-from io import BytesIO     # for handling byte strings
-from io import StringIO    # for handling unicode strings
 import smtplib
 import ssl
 from email.message import EmailMessage
+from email.mime.base import MIMEBase
+from email import encoders
+from pathlib import Path
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import pandas as pd
-
+import os
 # Please 
 email_sender = 'habib.usa2014@gmail.com'
 email_password = 'zctosnbdyoaxwruj'
@@ -26,6 +29,17 @@ def read_text_file(filename):
     with open(filename, 'r') as f:
         text = f.read()
     return text
+
+def add_attachments(attachment_path, message):
+    part = MIMEBase('application', "octet-stream")
+    with open(attachment_path, 'rb') as ap:
+        part = MIMEBase('application', "octet-stream")
+        part.set_payload(ap.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', 'attachment; filename={}'.format(Path(attachment_path).name))
+    message.attach(part)
+    return message
+
 data_frame = read_csv('datos.csv')
 csv_data_list = data_frame.values.tolist()
 for csv_data in csv_data_list:
@@ -36,13 +50,17 @@ for csv_data in csv_data_list:
     email_body = read_text_file('plantilla.txt')
     body = email_body.format(NOMBRE=NOMBRE, DATO1=DATO1)
     subject = 'Please add your email subject here'
-    em = EmailMessage()
+    # em = EmailMessage()
+    em = MIMEMultipart()
     em['From'] = email_sender
     em['To'] = email_receiver
     em['Subject'] = subject
-    em.set_content(body)
+    em = add_attachments('pool.jpg', em)
+    # em.set_content(body)
+    em.attach(MIMEText(body))
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
         smtp.login(email_sender, email_password)
-        smtp.sendmail(email_sender, email_receiver, em.as_string())
+        # smtp.sendmail(email_sender, email_receiver, em.as_string())
+        smtp.send_message(em)
