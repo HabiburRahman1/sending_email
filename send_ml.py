@@ -30,7 +30,6 @@ data_frame = read_csv('datos.csv')
 csv_data_list = data_frame.values.tolist()
 for csv_data in csv_data_list:
     name_email_data = csv_data[0].split(';')
-    print(name_email_data)
     NOMBRE = name_email_data[0]
     DATO1 = name_email_data[2]
     email_receiver = name_email_data[1]

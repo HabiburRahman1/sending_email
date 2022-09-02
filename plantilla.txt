@@ -1,2 +1,2 @@
-"""Estimado {NOMBRE},
-Me pongo en contacto contigo para....{DATO1}"""
+Estimado {NOMBRE},
+Me pongo en contacto contigo para....{DATO1}
